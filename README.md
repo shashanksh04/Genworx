@@ -1,2 +1,2 @@
 # Genworx
-Shashank's Genworx Internship Journet
+Shashank's Genworx Internship Journey
