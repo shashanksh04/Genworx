@@ -7,6 +7,8 @@ import json
 
 import os
 os.makedirs("data", exist_ok=True)
+os.makedirs("data/chapters", exist_ok=True)
+os.makedirs("data/raw", exist_ok=True)           
 
 #################################### Timer Setup ####################################
 
@@ -14,11 +16,11 @@ start = time.time()
 
 #################################### Misc Function ####################################
 def save_json(filename, data):
-    with open(f"raw/{filename}.json", "w") as file:
+    with open(f"data/raw/{filename}.json", "w", encoding="utf-8") as file:
         json.dump(data, file, indent=4)
 
 def save_txt(filename, data):
-    with open(f"raw/{filename}.txt", "w") as file:
+    with open(f"data/raw/{filename}.txt", "w", encoding="utf-8") as file:
         file.write(data)
 #################################### LLM Setup ####################################
 # main_llm = ChatOllama(model="mistral:7b")
@@ -202,9 +204,10 @@ for chapter in chapter_titles:
     chapter_content = chapter_generation_chain.invoke({"genre": genre, "characters": characters, "summary": summary_text, "chapter": chapter})
     # chapter_content = chapter_content
     print(chapter_content)
-    with open(f"data/chapters/i) {chapter_title}.txt", "w") as f:
+    with open(f"data/chapters/{i}) {chapter_title}.txt", "w", encoding="utf-8") as f:
         f.write(chapter_content)
     i = i + 1
+    print(f"Chapter Generation {time.time() - start:.2f} seconds")
     print("\n\n\n\n\n\n\n\n\n")
 
 print(f"Chapter Generation {time.time() - start:.2f} seconds")
