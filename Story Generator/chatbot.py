@@ -6,17 +6,20 @@ from langchain_ollama import ChatOllama, OllamaEmbeddings
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_community.vectorstores import FAISS
+from langchain_classic.schema import Document
 
 def load_files():
     files = []
-    for filename in os.listdir("./data"):
+    directory = "./data/raw"
+    for filename in os.listdir(directory):
         if filename.endswith(".txt"):
-            path = os.path.join(dir, filename)
-            loader = TextLoader(path)
-            file = loader.load()
-            files.extend(file)
-
+            path = os.path.join(directory, filename)
+            with open(path, 'r', encoding='utf-8') as f:
+                text = f.read()
+            files.append(Document(page_content=text, metadata={"source": filename}))
     return files
+
+
 
 def split_files(files):
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
@@ -83,7 +86,7 @@ def chat_loop():
     print("Files Loaded")
 
     # llm = ChatOllama(model="phi3:14b")
-    llm = ChatOllama(model="deepseek-r1:8b")
+    llm = ChatOllama(model="mistral:7b")
     embeddings = OllamaEmbeddings(model="nomic-embed-text")
 
     vector_store = create_vector_store(chunks, embeddings)
@@ -95,17 +98,19 @@ def chat_loop():
         if query.lower() in ["exit", "quit", "q"]:
             print("Exiting chat. Goodbye!")
             break
+
+        relevant_docs = retriever.invoke(query)
         
-        relevant_docs = retriever.get_relevant_documents(query)
+        # Prepare context string by joining
         context = "\n".join([doc.page_content for doc in relevant_docs])
-        
         
         answer = rag_chain.invoke({
             "context": context,
             "question": query
         })
         print("\nAnswer:")
-        print(answer)
+        print(answer)   
+
 
 
 chat_loop()
